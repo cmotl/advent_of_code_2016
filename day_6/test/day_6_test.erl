@@ -16,4 +16,12 @@ part1_integration_test() ->
     SplitCodes = string:tokens(RawCodes, "\n"),
     TransposedCodes = transpose(SplitCodes),
     DecodedMessage = lists:map(fun decoder:most_frequent_character/1, TransposedCodes), 
-    ?assertEqual("", DecodedMessage).
+    ?assertEqual("tzstqsua", DecodedMessage).
+
+part2_integration_test() -> 
+    {ok, Binary} = file:read_file("input.txt"),
+    RawCodes = binary:bin_to_list(Binary),
+    SplitCodes = string:tokens(RawCodes, "\n"),
+    TransposedCodes = transpose(SplitCodes),
+    DecodedMessage = lists:map(fun decoder:least_frequent_character/1, TransposedCodes), 
+    ?assertEqual("myregdnr", DecodedMessage).
