@@ -8,3 +8,11 @@ part1_integration_test() ->
     Ips = lists:map(fun ipv7:parse/1, SplitLines),
     TlsIps = lists:filter(fun ipv7:supports_tls/1, Ips),
     ?assertEqual(110, length(TlsIps)).
+
+part2_integration_test() -> 
+    {ok, Binary} = file:read_file("input.txt"),
+    RawLines = binary:bin_to_list(Binary),
+    SplitLines = string:tokens(RawLines, "\n"),
+    Ips = lists:map(fun ipv7:parse/1, SplitLines),
+    TlsIps = lists:filter(fun ipv7:supports_ssl/1, Ips),
+    ?assertEqual(242, length(TlsIps)).
