@@ -1,43 +1,18 @@
 -module(blacklist).
--export([parse/1, lowest_blocked_range/2]).
+-export([parse/1,combine_sorted_ranges/1]).
 
 parse(Range) ->
     [Low, High] = re:split(Range, "-", [{return, list}]),
     {list_to_integer(Low), list_to_integer(High)}.
 
-lowest_blocked_range(Range, nil) -> Range;
-% Indentical Ranges
-lowest_blocked_range({Low, High}, {Low, High}) ->
-    { Low, High };
-% New Range is adjacent lower than Lowest Range 
-lowest_blocked_range({NewLow, NewHigh}, {LowestLow, LowestHigh}) when 
-    (NewHigh+1 == LowestLow) ->
-    {NewLow, LowestHigh};
-% New Range is adjacent higher than Lowest Range 
-lowest_blocked_range({NewLow, NewHigh}, {LowestLow, LowestHigh}) when 
-    (LowestHigh+1 == NewLow) ->
-    {LowestLow, NewHigh};
-% New Range is higher than Lowest Range
-lowest_blocked_range({NewLow, _NewHigh}, {LowestLow, LowestHigh}) when 
-    (LowestHigh < NewLow) ->
-    {LowestLow, LowestHigh};
-% New Range is lower than Lowest Range
-lowest_blocked_range({NewLow, NewHigh}, {LowestLow, _LowestHigh}) when 
-    (NewHigh < LowestLow) ->
-    { NewLow, NewHigh };
-% New Range is already contained inside
-lowest_blocked_range({NewLow, NewHigh}, {LowestLow, LowestHigh}) when
-    ( NewLow > LowestLow ) and (NewHigh < LowestHigh) ->
-    { LowestLow, LowestHigh };
-% New Range contains Lowest Range completely
-lowest_blocked_range({NewLow, NewHigh}, {LowestLow, LowestHigh}) when
-    ( NewLow < LowestLow ) and ( NewHigh > LowestHigh ) ->
-    { NewLow, NewHigh };
-% New Range overlaps on the low side of Lowest Range 
-lowest_blocked_range({NewLow, NewHigh}, {LowestLow, LowestHigh}) when
-    ( NewHigh >= LowestLow ) and (NewHigh < LowestHigh) ->
-    { NewLow, LowestHigh };
-% New Range overlaps on the high side of Lowest Range 
-lowest_blocked_range({NewLow, NewHigh}, {LowestLow, LowestHigh}) when
-    ( LowestHigh >= NewLow ) and (LowestHigh < NewHigh) ->
-    { LowestLow, NewHigh }.
+
+combine_sorted_ranges([], FinalRange, CombinedRanges) -> lists:reverse([FinalRange|CombinedRanges]);
+combine_sorted_ranges([{Low, High}|Rest], {PreviousLow, PreviousHigh}, CombinedRanges) when (Low > PreviousHigh+1 ) ->
+    NextRange = {PreviousLow, PreviousHigh},
+    combine_sorted_ranges(Rest, {Low,High}, [NextRange|CombinedRanges]);
+combine_sorted_ranges([{_Low, High}|Rest], {PreviousLow, PreviousHigh}, CombinedRanges) ->
+    combine_sorted_ranges(Rest, {PreviousLow, max(High, PreviousHigh)}, CombinedRanges).
+
+combine_sorted_ranges([]) -> [];
+combine_sorted_ranges([FirstRange|Ranges]) -> 
+    combine_sorted_ranges(Ranges, FirstRange, []).
