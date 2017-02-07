@@ -1,5 +1,5 @@
 -module(scramble).
--export([parse/1, swap/2, move/2, reverse/2, rotate/2, execute/2]).
+-export([parse/1, swap/2, move/2, reverse/2, rotate/2, execute/2, invert_instruction/1]).
 
 parse(["swap", "position", Source, "with", "position", Destination]) ->
     {swap, position, list_to_integer(Source), list_to_integer(Destination)};
@@ -26,6 +26,20 @@ parse(["move", "position", From, "to", "position", To]) ->
 parse(Instruction) ->
     Tokens = string:tokens(Instruction, " "),
     parse(Tokens).
+
+invert_instruction({swap, position, From, To}) ->
+    {swap, position, To, From};
+invert_instruction({swap, letter, From, To}) ->
+    {swap, letter, To, From};
+invert_instruction({rotate, left, Amount}) ->
+    {rotate, right, Amount};
+invert_instruction({rotate, right, Amount}) ->
+    {rotate, left, Amount};
+invert_instruction({reverse, From, To}) ->
+    {reverse, To, From};
+invert_instruction({move, From, To}) ->
+    {move, To, From}.
+
 
 index_of(Value, List) ->
    Map = lists:zip(List, lists:seq(0, length(List)-1)),

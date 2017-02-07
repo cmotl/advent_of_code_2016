@@ -1,7 +1,29 @@
 -module(scramble_test).
 -include_lib("eunit/include/eunit.hrl").
 
--import(scramble, [parse/1, swap/2, move/2, reverse/2, rotate/2, execute/2]).
+-import(scramble, [parse/1, swap/2, move/2, reverse/2, rotate/2, execute/2, invert_instruction/1]).
+
+
+
+should_invert_swap_position_instruction_test() ->
+    Instruction = {swap, position, 4, 0},
+    ?assertEqual({swap, position, 0, 4}, invert_instruction(Instruction)).
+should_invert_swap_letter_instruction_test() ->
+    Instruction = {swap, letter, b, d},
+    ?assertEqual({swap, letter, d, b}, invert_instruction(Instruction)).
+should_invert_rotate_left_instruction_test() ->
+    Instruction = {rotate, left, 3},
+    ?assertEqual({rotate, right, 3}, invert_instruction(Instruction)).
+should_invert_rotate_right_instruction_test() ->
+    Instruction = {rotate, right, 3},
+    ?assertEqual({rotate, left, 3}, invert_instruction(Instruction)).
+should_invert_reverse_instruction_test() ->
+    Instruction = {reverse, 1, 3},
+    ?assertEqual({reverse, 3, 1}, invert_instruction(Instruction)).
+should_invert_move_instruction_test() ->
+    Instruction = {move, 1, 3},
+    ?assertEqual({move, 3, 1}, invert_instruction(Instruction)).
+
 
 should_parse_swap_position_instruction_test() ->
     Instruction = "swap position 4 with position 0",
