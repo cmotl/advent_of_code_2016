@@ -5,7 +5,9 @@ part1_integration_test() ->
 	{ok, Binary} = file:read_file("input.txt"),
     RawLines = binary:bin_to_list(Binary),
     SplitLines = string:tokens(RawLines, "\n"),
-    ?assertEqual(100, length(SplitLines)).
+    Instructions = lists:map(fun scramble:parse/1, SplitLines),
+    ScrambledPassword = scramble:execute("abcdefgh", Instructions),
+    ?assertEqual("cbeghdaf", ScrambledPassword).
 
 part2_integration_test() -> 
 	{ok, Binary} = file:read_file("input.txt"),
