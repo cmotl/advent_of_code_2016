@@ -9,7 +9,7 @@ part1_integration_test() ->
     ScrambledPassword = scramble:execute("abcdefgh", Instructions),
     ?assertEqual("cbeghdaf", ScrambledPassword).
 
-part2_integration_need_to_figure_out_inverse_for_rotate_letter() -> 
+part2_integration_need_to_figure_out_inverse_for_rotate_letter_test() -> 
 	{ok, Binary} = file:read_file("input.txt"),
     RawLines = binary:bin_to_list(Binary),
     SplitLines = string:tokens(RawLines, "\n"),
@@ -17,13 +17,13 @@ part2_integration_need_to_figure_out_inverse_for_rotate_letter() ->
     ReverseInstructions = lists:reverse(Instructions),
     UnscramblingInstructions = lists:map(fun scramble:invert_instruction/1, ReverseInstructions),
     UnscrambledPassword = scramble:execute("fbgdceah", UnscramblingInstructions),
-    ?assertEqual("", UnscrambledPassword).
+    ?assertEqual("bacdefgh", UnscrambledPassword).
 
 
 perms([]) -> [[]];
 perms(L)  -> [[H|T] || H <- L, T <- perms(L--[H])].
 
-part2_integration_brute_force_test() -> 
+part2_integration_brute_force() -> 
 	{ok, Binary} = file:read_file("input.txt"),
     RawLines = binary:bin_to_list(Binary),
     SplitLines = string:tokens(RawLines, "\n"),

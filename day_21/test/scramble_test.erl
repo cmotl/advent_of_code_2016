@@ -1,7 +1,7 @@
 -module(scramble_test).
 -include_lib("eunit/include/eunit.hrl").
 
--import(scramble, [parse/1, swap/2, move/2, reverse/2, rotate/2, execute/2, invert_instruction/1]).
+-import(scramble, [parse/1, swap/2, move/2, reverse/2, rotate/2, unrotate/2, execute/2, invert_instruction/1]).
 
 
 
@@ -17,9 +17,12 @@ should_invert_rotate_left_instruction_test() ->
 should_invert_rotate_right_instruction_test() ->
     Instruction = {rotate, right, 3},
     ?assertEqual({rotate, left, 3}, invert_instruction(Instruction)).
+should_invert_rotate_letter_instruction_test() ->
+    Instruction = {rotate, letter, d},
+    ?assertEqual({unrotate, letter, d}, invert_instruction(Instruction)).
 should_invert_reverse_instruction_test() ->
     Instruction = {reverse, 1, 3},
-    ?assertEqual({reverse, 3, 1}, invert_instruction(Instruction)).
+    ?assertEqual({reverse, 1, 3}, invert_instruction(Instruction)).
 should_invert_move_instruction_test() ->
     Instruction = {move, 1, 3},
     ?assertEqual({move, 3, 1}, invert_instruction(Instruction)).
@@ -87,6 +90,9 @@ should_execute_rotate_based_on_letter_instruction_when_index_is_at_least_4_test(
     Instruction = {rotate, letter, e},
     ?assertEqual("eabcd", rotate("abcde", Instruction)).
 
+should_execute_unrotate_based_on_letter_instruction_test() ->
+    Instruction = {unrotate, letter, d},
+    ?assertEqual("ecabd", unrotate("decab", Instruction)).
 
 should_execute_no_instructions_test() ->
     Instructions = [],
