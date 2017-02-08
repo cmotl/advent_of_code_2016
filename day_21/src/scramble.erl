@@ -1,5 +1,5 @@
 -module(scramble).
--export([parse/1, swap/2, move/2, reverse/2, rotate/2, execute/2, invert_instruction/1]).
+-export([parse/1, swap/2, move/2, reverse/2, rotate/2, unrotate/2, execute/2, invert_instruction/1]).
 
 parse(["swap", "position", Source, "with", "position", Destination]) ->
     {swap, position, list_to_integer(Source), list_to_integer(Destination)};
@@ -35,10 +35,11 @@ invert_instruction({rotate, left, Amount}) ->
     {rotate, right, Amount};
 invert_instruction({rotate, right, Amount}) ->
     {rotate, left, Amount};
-invert_instruction({reverse, From, To}) ->
-    {reverse, To, From};
+invert_instruction({rotate, letter, Letter}) ->
+    {unrotate, letter, Letter};
 invert_instruction({move, From, To}) ->
-    {move, To, From}.
+    {move, To, From};
+invert_instruction(Instruction) -> Instruction.
 
 
 index_of(Value, List) ->
@@ -94,6 +95,15 @@ rotate_letter(Input, Amount) when (Amount >= 4) ->
 rotate_letter(Input, Amount) ->
     rotate_list(Input, Amount+1).
 
+unrotate_letter(Input, Letter, 0) -> nil;
+unrotate_letter(Input, Letter, ShiftAmount) ->
+    X = rotate(Input, {rotate, left, length(Input) - ShiftAmount}),
+    Unscrambled = rotate(X, {rotate, letter, Letter}),
+    case Unscrambled == Input of
+        true -> X;
+        false -> unrotate_letter(Input, Letter, ShiftAmount-1)
+    end.
+
 rotate(Input, {rotate, letter, Letter}) ->
     Index = index_of(hd(atom_to_list(Letter)), Input),
     rotate_letter(Input, Index);
@@ -102,12 +112,16 @@ rotate(Input, {rotate, left, Amount}) ->
 rotate(Input, {rotate, right, Amount}) ->
     rotate_list(Input, Amount).
 
+unrotate(Input, {unrotate, letter, Letter}) ->
+    unrotate_letter(Input, Letter, length(Input)).    
+
 execute(Input, []) -> Input;
 execute(Input, [Instruction|Rest]) ->
     ScrambledInput = case element(1, Instruction) of 
         swap -> swap(Input, Instruction);
         reverse -> reverse(Input, Instruction);
         rotate -> rotate(Input, Instruction);
+        unrotate -> unrotate(Input, Instruction);
         move -> move(Input, Instruction)
     end,
     execute(ScrambledInput, Rest).
